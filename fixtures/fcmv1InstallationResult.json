@@ -1,0 +1,8 @@
+{
+  "installationId": "fcmv1-installation-sample-id",
+  "expirationTime": "9999-12-31T23:59:59.999Z",
+  "platform": "fcmv1",
+  "pushChannel": "fcmv1_token_sample_here",
+  "expiredPushChannel": false,
+  "tags": ["tag1", "tag2"]
+} 

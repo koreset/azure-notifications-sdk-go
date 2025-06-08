@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<entry xmlns="http://www.w3.org/2005/Atom" 
+       xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" 
+       xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" 
+       m:etag="W/&quot;1&quot;">
+    <id>https://testhub-ns.servicebus.windows.net/testhub/registrations/1025983137635915219-3562718380525399392-4?api-version=2016-07</id>
+    <title type="text">1025983137635915219-3562718380525399392-4</title>
+    <published>2019-04-23T09:12:50Z</published>
+    <updated>2019-04-23T09:12:50Z</updated>
+    <link rel="self" href="https://testhub-ns.servicebus.windows.net/testhub/registrations/1025983137635915219-3562718380525399392-4?api-version=2016-07" />
+    <content type="application/xml">
+        <FcmV1RegistrationDescription xmlns:i="http://www.w3.org/2001/XMLSchema-instance" 
+                                      xmlns="http://schemas.microsoft.com/netservices/2010/10/servicebus/connect">
+            <ETag>1</ETag>
+            <ExpirationTime>2029-04-23T09:12:50.000Z</ExpirationTime>
+            <RegistrationId>1025983137635915219-3562718380525399392-4</RegistrationId>
+            <Tags>myTag,myOtherTag</Tags>
+            <FcmV1RegistrationId>fcmv1_token_sample_here</FcmV1RegistrationId>
+        </FcmV1RegistrationDescription>
+    </content>
+</entry> 
