@@ -20,7 +20,10 @@ func main() {
 	}
 
 	// Create a new notification hub client
-	hub := notificationhubs.NewNotificationHub(connectionString, hubPath)
+	hub, err := notificationhubs.NewNotificationHub(connectionString, hubPath)
+	if err != nil {
+		log.Fatalf("Failed to create notification hub: %v", err)
+	}
 
 	// Create a context with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

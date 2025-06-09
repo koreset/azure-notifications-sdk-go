@@ -37,7 +37,10 @@ func Test_NewNotificationHub(t *testing.T) {
 	)
 
 	for i, testCase := range testCases {
-		obtainedNotificationHub := NewNotificationHub(testCase.connectionString, hubPath)
+		obtainedNotificationHub, err := NewNotificationHub(testCase.connectionString, hubPath)
+		if err != nil {
+			t.Errorf(errfmt, i, "NewNotificationHub", testCase.expectedHub.SasKeyValue, err)
+		}
 
 		if obtainedNotificationHub.SasKeyValue != testCase.expectedHub.SasKeyValue {
 			t.Errorf(errfmt, i, "NotificationHub.SasKeyValue", testCase.expectedHub.SasKeyValue, obtainedNotificationHub.SasKeyValue)

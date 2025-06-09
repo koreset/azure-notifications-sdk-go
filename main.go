@@ -4,7 +4,7 @@ package notificationhubs
 import "time"
 
 // NewNotificationHub initializes and returns NotificationHub pointer
-func NewNotificationHub(connectionString, hubPath string) *NotificationHub {
+func NewNotificationHub(connectionString, hubPath string) (*NotificationHub, error) {
 	return newNotificationHub(connectionString, hubPath)
 }
 

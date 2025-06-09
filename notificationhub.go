@@ -26,19 +26,29 @@ type NotificationHub struct {
 }
 
 // newNotificationHub initializes and returns NotificationHub pointer
-func newNotificationHub(connectionString, hubPath string) *NotificationHub {
+func newNotificationHub(connectionString, hubPath string) (*NotificationHub, error) {
 	var (
 		connData    = strings.Split(connectionString, ";")
 		_url        = &url.URL{}
 		sasKeyName  = ""
 		sasKeyValue = ""
 	)
+
+	if connectionString == "" {
+		return nil, fmt.Errorf("connection string cannot be empty")
+	}
+
+	if hubPath == "" {
+		return nil, fmt.Errorf("hub path cannot be empty")
+	}
+
 	for _, connItem := range connData {
 		if strings.HasPrefix(connItem, paramEndpoint) {
 			hubURL, err := url.Parse(connItem[len(paramEndpoint):])
-			if err == nil {
-				_url = hubURL
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse endpoint URL: %w", err)
 			}
+			_url = hubURL
 			continue
 		}
 
@@ -51,6 +61,10 @@ func newNotificationHub(connectionString, hubPath string) *NotificationHub {
 			sasKeyValue = connItem[len(paramSaasKeyValue):]
 			continue
 		}
+	}
+
+	if sasKeyName == "" || sasKeyValue == "" {
+		return nil, fmt.Errorf("invalid connection string: missing SAS key name or value")
 	}
 
 	if _url.Scheme == schemeServiceBus || _url.Scheme == "" {
@@ -66,7 +80,7 @@ func newNotificationHub(connectionString, hubPath string) *NotificationHub {
 
 		client:                  utils.NewHubHTTPClient(),
 		expirationTimeGenerator: utils.NewExpirationTimeGenerator(),
-	}
+	}, nil
 }
 
 // SetHTTPClient makes it possible to use a custom http client

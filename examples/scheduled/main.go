@@ -21,7 +21,10 @@ func main() {
 	}
 
 	// Create a new notification hub client
-	hub := notificationhubs.NewNotificationHub(connectionString, hubPath)
+	hub, err := notificationhubs.NewNotificationHub(connectionString, hubPath)
+	if err != nil {
+		log.Fatalf("Failed to create notification hub: %v", err)
+	}
 
 	// Create a notification payload for Apple Push Notification Service (APNS)
 	payload := map[string]interface{}{

@@ -65,7 +65,7 @@ func initNotificationTestItems() (*NotificationHub, *Notification, *mockHubHTTPC
 func initTestItems() (*NotificationHub, *mockHubHTTPClient) {
 	var (
 		mockClient = &mockHubHTTPClient{}
-		nhub       = NewNotificationHub(connectionString, hubPath)
+		nhub, _    = NewNotificationHub(connectionString, hubPath)
 	)
 	nhub.SetHTTPClient(mockClient)
 	nhub.SetExpirationTimeGenerator(mockTimeGeneratorFunc)
