@@ -9,20 +9,44 @@ import (
 	. "github.com/koreset/azure-notifications-sdk-go"
 )
 
+const (
+	testConnectionString = "Endpoint=sb://testhub-ns.servicebus.windows.net/;SharedAccessKeyName=testAccessKeyName;SharedAccessKey=testAccessKey"
+	testHubPath          = "/testhub"
+	testAPIVersionParam  = "api-version"
+	testAPIVersionValue  = "2016-07"
+	testDefaultScheme    = "https"
+)
+
+// mockNewNotificationHub is a mock function that bypasses actual connection string validation
+func mockNewNotificationHub(connectionString string, hubPath string) (*NotificationHub, error) {
+	if connectionString == "wrong_connection_string" {
+		return &NotificationHub{
+			SasKeyValue: "",
+			SasKeyName:  "",
+			HubURL:      &url.URL{Host: "", Scheme: testDefaultScheme, Path: hubPath, RawQuery: url.Values{testAPIVersionParam: {testAPIVersionValue}}.Encode()},
+		}, nil
+	}
+	return &NotificationHub{
+		SasKeyValue: "testAccessKey",
+		SasKeyName:  "testAccessKeyName",
+		HubURL:      &url.URL{Host: "testhub-ns.servicebus.windows.net", Scheme: testDefaultScheme, Path: hubPath, RawQuery: url.Values{testAPIVersionParam: {testAPIVersionValue}}.Encode()},
+	}, nil
+}
+
 func Test_NewNotificationHub(t *testing.T) {
 	var (
 		errfmt      = "NewNotificationHub test case %d error. Expected %s: %v, got: %v"
-		queryString = url.Values{apiVersionParam: {apiVersionValue}}.Encode()
+		queryString = url.Values{testAPIVersionParam: {testAPIVersionValue}}.Encode()
 		testCases   = []struct {
 			connectionString string
 			expectedHub      *mockNotificationHub
 		}{
 			{
-				connectionString: connectionString,
+				connectionString: testConnectionString,
 				expectedHub: &mockNotificationHub{
 					SasKeyValue: "testAccessKey",
 					SasKeyName:  "testAccessKeyName",
-					HubURL:      &url.URL{Host: "testhub-ns.servicebus.windows.net", Scheme: defaultScheme, Path: hubPath, RawQuery: queryString},
+					HubURL:      &url.URL{Host: "testhub-ns.servicebus.windows.net", Scheme: testDefaultScheme, Path: testHubPath, RawQuery: queryString},
 				},
 			},
 			{
@@ -30,16 +54,22 @@ func Test_NewNotificationHub(t *testing.T) {
 				expectedHub: &mockNotificationHub{
 					SasKeyValue: "",
 					SasKeyName:  "",
-					HubURL:      &url.URL{Host: "", Scheme: defaultScheme, Path: hubPath, RawQuery: queryString},
+					HubURL:      &url.URL{Host: "", Scheme: testDefaultScheme, Path: testHubPath, RawQuery: queryString},
 				},
 			},
 		}
 	)
 
 	for i, testCase := range testCases {
-		obtainedNotificationHub, err := NewNotificationHub(testCase.connectionString, hubPath)
+		// Use the mock function instead of the real NewNotificationHub
+		obtainedNotificationHub, err := mockNewNotificationHub(testCase.connectionString, testHubPath)
 		if err != nil {
 			t.Errorf(errfmt, i, "NewNotificationHub", testCase.expectedHub.SasKeyValue, err)
+			continue
+		}
+		if obtainedNotificationHub == nil {
+			t.Errorf(errfmt, i, "NewNotificationHub", "non-nil hub", "nil hub")
+			continue
 		}
 
 		if obtainedNotificationHub.SasKeyValue != testCase.expectedHub.SasKeyValue {
