@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"time"
@@ -12,6 +13,12 @@ import (
 )
 
 func main() {
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+
 	// Get connection string and hub path from environment variables
 	connectionString := os.Getenv("AZURE_NOTIFICATION_HUB_CONNECTION_STRING")
 	hubPath := os.Getenv("AZURE_NOTIFICATION_HUB_PATH")
@@ -26,25 +33,35 @@ func main() {
 		log.Fatalf("Failed to create notification hub: %v", err)
 	}
 
-	// Create a notification payload for Apple Push Notification Service (APNS)
+	// Create a notification payload for Android (Firebase Cloud Messaging)
+	//payload := map[string]interface{}{
+	//	"data": map[string]string{
+	//		"message": "This is a direct notification",
+	//	},
+	//	"notification": map[string]string{
+	//		"title": "Direct Notification",
+	//		"body":  "This notification was sent directly to your device",
+	//	},
+	//}
+
 	payload := map[string]interface{}{
-		"aps": map[string]interface{}{
-			"alert": map[string]string{
-				"title": "Direct Notification",
-				"body":  "This notification was sent directly to your device",
+		"message": map[string]interface{}{
+			"notification": map[string]string{
+				"body": "This is a direct notification",
 			},
-			"sound": "default",
 		},
 	}
 
 	// Convert payload to JSON
 	payloadBytes, err := json.Marshal(payload)
+
+	fmt.Println(string(payloadBytes))
 	if err != nil {
 		log.Fatalf("Failed to marshal payload: %v", err)
 	}
 
 	// Create a new notification
-	notification, err := notificationhubs.NewNotification(notificationhubs.AppleFormat, payloadBytes)
+	notification, err := notificationhubs.NewNotification(notificationhubs.FcmV1Format, payloadBytes)
 	if err != nil {
 		log.Fatalf("Failed to create notification: %v", err)
 	}

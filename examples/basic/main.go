@@ -8,10 +8,17 @@ import (
 	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	notificationhubs "github.com/koreset/azure-notifications-sdk-go"
 )
 
 func main() {
+	// Load environment variables from .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+
 	// Get connection string and hub path from environment variables
 	connectionString := os.Getenv("AZURE_NOTIFICATION_HUB_CONNECTION_STRING")
 	hubPath := os.Getenv("AZURE_NOTIFICATION_HUB_PATH")
@@ -26,14 +33,28 @@ func main() {
 		log.Fatalf("Failed to create notification hub: %v", err)
 	}
 
-	// Create a notification payload for Apple Push Notification Service (APNS)
+	// Create a notification payload for Android (Firebase Cloud Messaging)
+	//payload := map[string]interface{}{
+	//	"data": map[string]string{
+	//		"message": "This is a test notification",
+	//	},
+	//	"notification": map[string]string{
+	//		"title": "Hello!",
+	//		"body":  "This is a test notification",
+	//	},
+	//}
+
 	payload := map[string]interface{}{
-		"aps": map[string]interface{}{
-			"alert": map[string]string{
-				"title": "Hello!",
-				"body":  "This is a test notification",
+		"message": map[string]interface{}{
+			"data": map[string]string{
+				"message": "This is a direct notification",
+				"userId":  "12345",
+				"msisdn":  "1234567890",
 			},
-			"sound": "default",
+			"notification": map[string]string{
+				"title": "Direct Notification",
+				"body":  "This is a direct notification that was sent from the backend push",
+			},
 		},
 	}
 
@@ -44,7 +65,7 @@ func main() {
 	}
 
 	// Create a new notification
-	notification, err := notificationhubs.NewNotification(notificationhubs.AppleFormat, payloadBytes)
+	notification, err := notificationhubs.NewNotification(notificationhubs.FcmV1Format, payloadBytes)
 	if err != nil {
 		log.Fatalf("Failed to create notification: %v", err)
 	}
@@ -54,7 +75,12 @@ func main() {
 	defer cancel()
 
 	// Send the notification
-	_, telemetry, err := hub.Send(ctx, notification, nil)
+	bytes, telemetry, err := hub.Send(ctx, notification, nil)
+
+	// view the response bytes if needed
+	fmt.Println("Response bytes:")
+	fmt.Println(string(bytes))
+
 	if err != nil {
 		log.Fatalf("Failed to send notification: %v", err)
 	}
